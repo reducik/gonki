@@ -195,7 +195,7 @@ def game_screen_level2():
         pygame.draw.line(screen, black, (screen_width // 2, 0), (screen_width // 2, screen_height), 5)  # Линия по центру экрана
         pygame.draw.line(screen, red, (0, finish_line_pos), (screen_width, finish_line_pos), 5)  # Финишная линия
 
-        screen.blit(player_image, car1_pos)  # Отображаем первую машину
+        screen.blit(player_image, car1_pos)  # Отображаем первую машин
         screen.blit(player_image, car2_pos)  # Отображаем вторую машину
 
         pygame.display.update()

@@ -25,10 +25,14 @@ enemy_image = pygame.image.load('car_16422421.png').convert_alpha()
 # Масштабирование изображений до нужного размера
 player_image = pygame.transform.scale(player_image, (50, 85))
 enemy_image = pygame.transform.scale(enemy_image, (50, 85))
+
+# Загрузка и масштабирование фона
 fon = pygame.image.load('21455.png')
 fon = pygame.transform.scale(fon, (screen_width, screen_height))
-background = pygame.image.load('images.jpg')
-background = pygame.transform.scale(fon, (screen_width, screen_height))
+
+background = pygame.image.load('1679095522_bogatyr-club-p-fon-dlya-oblozhki-treka-foni-oboi-2.jpg')
+background = pygame.transform.scale(background, (screen_width, screen_height))
+
 # Параметры игрока
 player_pos = [screen_width // 2 - 100, screen_height - 2 * 85]
 
@@ -62,7 +66,7 @@ def button_clicked(mouse_pos, button_rect):
 # Отображение стартового меню
 def start_menu():
     while True:
-        screen.blit(fon, (0,0))  # Заполняем экран белым цветом
+        screen.blit(fon, (0, 0))  # Заполняем экран фоном
 
         # Рисуем кнопку "Level 1"
         level1_button_rect = pygame.Rect(300, 150, 200, 100)
@@ -94,19 +98,21 @@ def start_menu():
 
 # Функция для создания нового врага
 def create_enemy():
-    x_pos = random.randint(0, screen_width - enemy_image.get_width())
-    y_pos = -enemy_image.get_height()
+    x_pos = random.randint(0, screen_width - enemy_image.get_width())  # Случайная позиция по X
+    y_pos = -enemy_image.get_height()  # Начальная позиция по Y
     return [x_pos, y_pos]
 
 # Функция для игрового экрана первого уровня
 def game_screen_level1():
-    screen.blit(background, (0, 0))  # Заполняем экран белым цветом
-    global game_over, start_time
+    global game_over, start_time, player_pos
     game_over = False  # Инициализируем game_over
     frame_count = 0
     start_time = pygame.time.get_ticks()
+    enemies.clear()
+    player_pos = [screen_width // 2 - 100, screen_height - 2 * 85]  # Начальная позиция игрока
 
     while not game_over:
+        screen.blit(background, (0, 0))  # Отображаем фон
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -114,15 +120,16 @@ def game_screen_level1():
 
         keys = pygame.key.get_pressed()
 
-        if keys[pygame.K_LEFT]:
+        if keys[pygame.K_LEFT]:  # Движение влево
             player_pos[0] -= 5
-        if keys[pygame.K_RIGHT]:
+        if keys[pygame.K_RIGHT]:  # Движение вправо
             player_pos[0] += 5
-        if keys[pygame.K_UP]:
+        if keys[pygame.K_UP]:  # Движение вверх
             player_pos[1] -= 5
-        if keys[pygame.K_DOWN]:
+        if keys[pygame.K_DOWN]:  # Движение вниз
             player_pos[1] += 5
 
+        # Ограничиваем движение игрока границами экрана
         if player_pos[0] < 0:
             player_pos[0] = 0
         if player_pos[0] > screen_width - player_image.get_width():
@@ -131,8 +138,6 @@ def game_screen_level1():
             player_pos[1] = 0
         if player_pos[1] > screen_height - player_image.get_height():
             player_pos[1] = screen_height - player_image.get_height()
-
-        screen.fill(white)
 
         frame_count += 1
         if frame_count % enemy_spawn_rate == 0:
@@ -166,7 +171,7 @@ def game_screen_level1():
 
 # Функция для игрового экрана второго уровня
 def game_screen_level2():
-    global game_over, car1_speed, car2_speed, car2_pos
+    global game_over, car1_speed, car2_speed, car1_pos, car2_pos
     game_over = False  # Инициализируем game_over
     car1_pos = [screen_width // 2 - 200, screen_height - 2 * 85]  # Начальная позиция первой машины
     car2_pos = [screen_width // 2 + 100, screen_height - 2 * 85]  # Начальная позиция второй машины
@@ -174,6 +179,7 @@ def game_screen_level2():
     car2_speed = 2  # Константная скорость второй машины
 
     while not game_over:
+        screen.blit(background, (0, 0))  # Отображаем фон
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -182,8 +188,6 @@ def game_screen_level2():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     car1_speed += PLAYER_SPEED_INCREMENT  # Увеличиваем скорость первой машины при нажатии пробела
-
-        screen.fill(white)  # Заполняем экран белым цветом
 
         # Обновление позиций машин
         car1_pos[1] -= car1_speed  # Перемещаем первую машину вверх на значение ее скорости
@@ -195,7 +199,7 @@ def game_screen_level2():
         pygame.draw.line(screen, black, (screen_width // 2, 0), (screen_width // 2, screen_height), 5)  # Линия по центру экрана
         pygame.draw.line(screen, red, (0, finish_line_pos), (screen_width, finish_line_pos), 5)  # Финишная линия
 
-        screen.blit(player_image, car1_pos)  # Отображаем первую машин
+        screen.blit(player_image, car1_pos)  # Отображаем первую машину
         screen.blit(player_image, car2_pos)  # Отображаем вторую машину
 
         pygame.display.update()
@@ -213,12 +217,12 @@ def game_over_screen(game_result):
         text_rect = text.get_rect(center=(screen_width / 2, screen_height / 2 - 100))  # Сместили текст вверх
         screen.blit(text, text_rect)
 
-        if isinstance(game_result, float):
+        if isinstance(game_result, float):  # Если результат - время
             font = pygame.font.Font(None, 36)
             time_text = font.render(f"Time: {game_result:.2f} seconds", True, black)
             time_text_rect = time_text.get_rect(center=(screen_width / 2, screen_height / 2 - 20))  # Сместили текст вверх
             screen.blit(time_text, time_text_rect)
-        else:
+        else:  # Если результат - победитель
             font = pygame.font.Font(None, 36)
             winner_text = font.render(f"Winner: {game_result}", True, black)
             winner_text_rect = winner_text.get_rect(center=(screen_width / 2, screen_height / 2 - 20))  # Сместили текст вверх
@@ -245,11 +249,11 @@ def game_over_screen(game_result):
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = pygame.mouse.get_pos()
                 if button_clicked(mouse_pos, restart_button_rect2):
-                    start_game(level=2)
+                    start_game(level=2)  # Перезапуск второго уровня
                 if button_clicked(mouse_pos, restart_button_rect1):
-                    start_game(level=1)
-                if button_clicked(mouse_pos,  level2_button_rect ):
-                    return "назад"
+                    start_game(level=1)  # Перезапуск первого уровня
+                if button_clicked(mouse_pos, level2_button_rect):
+                    return "назад"  # Возвращение в главное меню
                 elif button_clicked(mouse_pos, exit_button_rect):
                     pygame.quit()
                     sys.exit()
